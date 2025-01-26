@@ -39,8 +39,37 @@ class Mob(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
-        self.game.update_score(self.score)
-        self.kill()
+            blood_frames = [
+                pygame.image.load(f"assets/blood{i}.png").convert_alpha()
+                for i in range(1, 6)
+            ]
+
+            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
+            scale_factor = 0.5
+
+            # Function to animate the blood splash
+            def play_blood_splash():
+                for frame in blood_frames:
+                    # Scale the frame by the scaling factor
+                    new_width = int(frame.get_width() * scale_factor)
+                    new_height = int(frame.get_height() * scale_factor)
+                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+
+                    # Position the splash frame centered on the mob's position
+                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+
+                    # Draw the scaled blood splash frame
+                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    pygame.display.update()
+
+            # Play the blood splash animation
+            play_blood_splash()
+
+            # Update score
+            self.game.update_score(self.score)
+
+            # Kill the mob
+            self.kill()
 
     def draw_health_bar(self, screen):
         """Draw the health bar above the mob sprite."""
@@ -99,8 +128,37 @@ class Mob_right(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
-        self.game.update_score(self.score)
-        self.kill()
+            blood_frames = [
+                pygame.image.load(f"assets/blood{i}.png").convert_alpha()
+                for i in range(1, 6)
+            ]
+
+            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
+            scale_factor = 0.5
+
+            # Function to animate the blood splash
+            def play_blood_splash():
+                for frame in blood_frames:
+                    # Scale the frame by the scaling factor
+                    new_width = int(frame.get_width() * scale_factor)
+                    new_height = int(frame.get_height() * scale_factor)
+                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+
+                    # Position the splash frame centered on the mob's position
+                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+
+                    # Draw the scaled blood splash frame
+                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    pygame.display.update()
+
+            # Play the blood splash animation
+            play_blood_splash()
+
+            # Update score
+            self.game.update_score(self.score)
+
+            # Kill the mob
+            self.kill()
 
     def draw_health_bar(self, screen):
         """Draw the health bar above the mob sprite."""
@@ -191,9 +249,38 @@ class Boss(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
-        self.game.update_score(self.score)
-        self.kill()
+            blood_frames = [
+                pygame.image.load(f"assets/blood{i}.png").convert_alpha()
+                for i in range(1, 6)
+            ]
 
+            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
+            scale_factor = 1
+
+            # Function to animate the blood splash
+            def play_blood_splash():
+                for frame in blood_frames:
+                    # Scale the frame by the scaling factor
+                    new_width = int(frame.get_width() * scale_factor)
+                    new_height = int(frame.get_height() * scale_factor)
+                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+
+                    # Position the splash frame centered on the mob's position
+                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+
+                    # Draw the scaled blood splash frame
+                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    pygame.display.update()
+
+            # Play the blood splash animation
+            play_blood_splash()
+
+            # Update score
+            self.game.update_score(self.score)
+
+            # Kill the mob
+            self.kill()
+        
     def draw_health_bar(self, screen):
         """Draw the health bar above the mob sprite."""
         health_bar_width = 40
