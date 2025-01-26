@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         health_bar_width = 40
         health_bar_height = 5
         health_percentage = self.health / self.max_health
-        health_bar_rect = pygame.Rect(self.rect.centerx - health_bar_width // 2, self.rect.top - 10, health_bar_width, health_bar_height)
+        health_bar_rect = pygame.Rect(self.rect.centerx - health_bar_width // 2, self.rect.top + 5, health_bar_width, health_bar_height)
 
         # Background (empty) health bar
         pygame.draw.rect(screen, (0, 0, 0), health_bar_rect)
@@ -59,8 +59,12 @@ class Player(pygame.sprite.Sprite):
         # Filled health bar
         pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(health_bar_rect.x, health_bar_rect.y, health_bar_width * health_percentage, health_bar_height))
 
-    def take_damage(self):
+    def take_damage(self, amount = 1):
         """Reduces player's health by the given amount."""
-        self.health -= 1
+        self.health -= amount
         if self.health < 0:
-            self.health = 0
+            self.dead()
+    
+    def dead(self):
+        """Returns True if the player's health is zero."""
+        return self.health == 0
