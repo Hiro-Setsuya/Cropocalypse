@@ -27,6 +27,7 @@ class Game:
         pygame.display.set_icon(pygame.image.load(r"assets/icon.jpg"))
         self.clock = pygame.time.Clock()
         self.running = True
+        self.score = 0
 
 
         # Cursor
@@ -430,13 +431,13 @@ class Game:
                 mob.update()  # Update the mob logic
                 mob.draw_health_bar(self.screen)  # Draw the health bar
             
-         # Draw the player's health bar
+            # Draw the player's health bar
             self.player.update()
             self.player.draw_health_bar(self.screen)
+
+            self.display_score()
             
-
         self.screen.blit(self.cursor, pygame.mouse.get_pos())
-
 
     def fill_excess_area(self):
         """Fill the excess space around the gameplay area and stretch the map vertically."""
@@ -503,12 +504,11 @@ class Game:
             self.enemy_spawn_time = random.randint(1000, 3000) #Still random interval
             mob_type = random.choice([Mob, Mob_right, Boss])
             spawn_x, spawn_y = self.get_spawn_position(spawn_edge)
-            enemy = mob_type((spawn_x, spawn_y), self.player, self.all_sprites)
+            enemy = mob_type((spawn_x, spawn_y), self.player, game, self.all_sprites)
             self.all_sprites.add(enemy)
             self.mob_sprites.add(enemy)
             self.last_spawn_time = now
             self.spawn_counter += 1
-
 
     def get_spawn_position(self, edge):
         """Get the spawn position for enemies based on specific edges of the map image."""
@@ -585,8 +585,6 @@ class Game:
                     self.draw_pause_screen()  # Draw pause background when paused
 
 
-
-
             if not self.is_paused:
                 self.draw()  # Draw game objects when not paused
            
@@ -617,6 +615,16 @@ class Game:
        
         # After the delay, switch to the game state
         self.game_state = "game"
+
+    def update_score(self, score):
+        """Update the game score."""
+        self.score += score
+
+    def display_score(self):
+        """Display the current score on the screen."""
+        font = pygame.font.Font(None, 36)
+        score_surface = font.render(f"Score: {self.score}", True, (255, 0, 0))
+        self.screen.blit(score_surface, (10, 10))
 
 
 # Button class with image support
