@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
     
         # Movement
         self.direction = pygame.Vector2()
-        self.speed = 3
+        self.speed = 2
         self.facing_right = True  # Track the facing direction
 
     def input(self):
