@@ -81,4 +81,3 @@ class Arrow(pygame.sprite.Sprite):
         # Check if the mouse click is on the arrow's rect
         if self.rect.collidepoint(mouse_pos):
             self.kill()
-
