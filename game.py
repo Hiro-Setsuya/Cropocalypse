@@ -107,8 +107,17 @@ class Game:
 
         self.show_intro_text = True
 
+        # Load the game music
+        self.bow1sfx = pygame.mixer.Sound(r"sfx/arrow_sfx1.ogg")
+        self.bow2sfx = pygame.mixer.Sound(r"sfx/arrow_sfx2.ogg")
+        self.last_shot_sound = 1  # Start with sound1
 
         self.setup()
+
+
+    def setup(self):
+        self.bow = Bow(self.player, self.all_sprites)
+
        
     def center_player(self):
         """Reposition the player in the center of the screen."""
@@ -125,6 +134,7 @@ class Game:
         self.border_map_image = pygame.image.load(r"assets/border.jpg").convert_alpha()  # New border map image
         self.chars_image = pygame.image.load(r"assets/player.png").convert_alpha()
         self.resume_button_image = pygame.image.load(r"assets/resume_button.png").convert_alpha()  # Load resume button
+        self.restart_button_image = pygame.image.load(r"assets/restart_button.png").convert_alpha()  # Load restart button
 
 
     def spawn_chars(self):
@@ -152,10 +162,15 @@ class Game:
             rel_x, rel_y = mouse_x - self.player.rect.centerx, mouse_y - self.player.rect.centery
             direction = pygame.Vector2(rel_x, rel_y).normalize()
 
-
             # Create the arrow object
             Arrow(self.player.rect.center, direction, 10, self.all_sprites)
 
+            if self.last_shot_sound == 1:
+                self.bow1sfx.play()
+                self.last_shot_sound = 2  # Set next sound to sound2
+            else:
+                self.bow2sfx.play()
+                self.last_shot_sound = 1  # Set next sound to sound1
 
             # Reset shoot cooldown
             self.can_shoot = False
@@ -198,33 +213,28 @@ class Game:
         """Draw a pause background image and show the cursor when hovered over it."""
         screen_width, screen_height = pygame.display.get_surface().get_size()
 
-
         # Scale the pause background to 40% of screen width and 99% of screen height
         scaled_width = int(screen_width * 0.3)
         scaled_height = int(screen_height * 0.89)
         scaled_pause_bg = pygame.transform.scale(self.pause_bg, (scaled_width, scaled_height))
 
-
         # Calculate the position to center the scaled pause background and move it slightly downward
         pause_x = (screen_width - scaled_width) // 2
         pause_y = ((screen_height - scaled_height) // 2) + int(screen_height * 0.05)
 
-
         # Draw the scaled pause background image
         self.screen.blit(scaled_pause_bg, (pause_x, pause_y))
-
 
         # Get the mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-
         # Check if the mouse is over the pause background
         pause_bg_rect = pygame.Rect(pause_x, pause_y, scaled_width, scaled_height)
+        
         if pause_bg_rect.collidepoint(mouse_x, mouse_y):
             pygame.mouse.set_visible(True)  # Show the cursor
         else:
             pygame.mouse.set_visible(False)  # Hide the cursor when not hovering
-
 
         # Draw the quit button when the game is paused
         quit_button_width, quit_button_height = 225, 200  # Increased height from 100 to 150
@@ -260,6 +270,31 @@ class Game:
         if resume_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
             self.is_paused = False  # Unpause the game when resume button is clicked
 
+        restart_button_width, restart_button_height = 300, 150  # Increased width to 500
+        restart_button_x = (screen_width - restart_button_width) // 2 + 50  # Moved 50 pixels to the right
+        restart_button_y = screen_height // 2
+        restart_button_rect = pygame.Rect(restart_button_x, restart_button_y, restart_button_width, restart_button_height)
+
+        self.screen.blit(self.restart_button_image, restart_button_rect)
+
+        if restart_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
+            self.reset_game()
+
+    def reset_game(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(r"sfx/battle_ost.ogg")  # Load the battle OST
+        pygame.mixer.music.play(-1, 0.0)
+        self.game_started = True
+        self.start_time = pygame.time.get_ticks()            
+        self.game_state = "game"
+        self.center_player()
+        self.handle_pause_button_position()
+        self.score = 0
+        self.all_sprites.empty()
+        self.mob_sprites.empty()
+        self.player = Player((self.screen_width / 2, self.screen_height / 2), self.all_sprites)
+        self.all_sprites.add(self.player)
+        self.setup()
 
     def go_to_home_screen(self):
         """Reset the game state and display the home screen."""
@@ -342,7 +377,6 @@ class Game:
             self.bow_timer()
             self.all_sprites.update()
             self.spawn_enemies()
-
 
             # Border collision for the player
             self.check_player_border_collision()
@@ -481,10 +515,6 @@ class Game:
             # Draw the map on top of the border
             self.screen.blit(scaled_map, (map_x, map_y))
 
-
-    def setup(self):
-        """Set up initial game objects."""
-        self.bow = Bow(self.player, self.all_sprites)
        
     def spawn_enemies(self):
         if not self.game_started:
