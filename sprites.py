@@ -76,12 +76,9 @@ class Arrow(pygame.sprite.Sprite):
         # Check if the arrow is within the map boundaries
         if not self.rect.colliderect(pygame.Rect(map_x, map_y, map_width, map_height)):
             self.kill()
-
-
-class CollisionSprite(pygame.sprite.Sprite):
-    def __init__(self, pos, size, groups):
-        super().__init__(groups)
-        self.image = pygame.Surface(size)
-        self.image.fill("blue")
-        # Unfinish
+    
+    def check_click(self, mouse_pos):
+        # Check if the mouse click is on the arrow's rect
+        if self.rect.collidepoint(mouse_pos):
+            self.kill()
 
