@@ -183,7 +183,20 @@ class Game:
                 if quit_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
                     self.running = False  # Exit the game when quit button is clicked
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
 
+                        # Check if any mob is clicked
+                    for mob in self.mob_sprites:
+                        if mob.rect.collidepoint(mouse_x, mouse_y):
+                            mob.take_damage()
+
+                        for arrow in self.arrow_sprites:
+                            if arrow.rect.collidepoint(mouse_x, mouse_y) and arrow.alive():
+                                arrow.kill()
+                                break
+                    
     def draw_pause_screen(self):
         """Draw a pause background image and show the cursor when hovered over it."""
         screen_width, screen_height = pygame.display.get_surface().get_size()
@@ -407,6 +420,10 @@ class Game:
             if self.pause_button:  # Draw the pause button in the game
                 self.pause_button.draw(self.screen)
 
+            for mob in self.mob_sprites:
+                mob.update()  # Update the mob logic
+                mob.draw_health_bar(self.screen)  # Draw the health bar
+
 
         self.screen.blit(self.cursor, pygame.mouse.get_pos())
 
@@ -478,6 +495,7 @@ class Game:
             spawn_x, spawn_y = self.get_spawn_position(spawn_edge)
             enemy = mob_type((spawn_x, spawn_y), self.player, self.all_sprites)
             self.all_sprites.add(enemy)
+            self.mob_sprites.add(enemy)
             self.last_spawn_time = now
             self.spawn_counter += 1
 
@@ -539,12 +557,17 @@ class Game:
                 if self.play_button.is_hovered() and pygame.mouse.get_pressed()[0]:
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load(r"sfx/battle_ost.ogg")  # Load the battle OST
-                    pygame.mixer.music.play(-1, 0.0)  # Play the battle OST indefinitely
+                    pygame.mixer.music.play(-1, 0.0)
                     self.game_started = True
                     self.start_time = pygame.time.get_ticks()            
                     self.game_state = "game"
                     self.center_player()
                     self.handle_pause_button_position()
+
+                if self.quit_button.is_hovered() and pygame.mouse.get_pressed()[0]:
+                    sys.exit()
+                    pygame.quit()
+
             elif self.game_state == "game":
                 if self.show_intro_text:
                     self.display_endless_apocalypse()
@@ -555,12 +578,15 @@ class Game:
                     self.draw_pause_screen()  # Draw pause background when paused
 
 
+
+
             if not self.is_paused:
                 self.draw()  # Draw game objects when not paused
            
             self.all_sprites.update()
             pygame.display.update()
             self.clock.tick(60)
+
 
         pygame.quit()
         sys.exit()
@@ -608,3 +634,4 @@ class Button:
 if __name__ == "__main__":
     game = Game()
     game.run()
+    
