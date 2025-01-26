@@ -6,6 +6,8 @@ class Player(pygame.sprite.Sprite):
         self.original_image = pygame.image.load(r"assets/player.png").convert_alpha()
         self.image = pygame.transform.scale(self.original_image, scale)  # Scale the image
         self.rect = self.image.get_rect(center=pos)
+        self.health = 3
+        self.max_health = 3
     
         # Movement
         self.direction = pygame.Vector2()
@@ -43,3 +45,22 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.input()
         self.move()
+
+    def draw_health_bar(self, screen):
+        """Draw the health bar above the mob sprite."""
+        health_bar_width = 40
+        health_bar_height = 5
+        health_percentage = self.health / self.max_health
+        health_bar_rect = pygame.Rect(self.rect.centerx - health_bar_width // 2, self.rect.top - 10, health_bar_width, health_bar_height)
+
+        # Background (empty) health bar
+        pygame.draw.rect(screen, (0, 0, 0), health_bar_rect)
+
+        # Filled health bar
+        pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(health_bar_rect.x, health_bar_rect.y, health_bar_width * health_percentage, health_bar_height))
+
+    def take_damage(self):
+        """Reduces player's health by the given amount."""
+        self.health -= 1
+        if self.health < 0:
+            self.health = 0
