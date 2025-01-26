@@ -493,6 +493,10 @@ class Game:
                 if self.player.health <= 0:
                     self.is_gameover = True        # Game Over Interface
                     self.game_state = "gameover"
+                    # Play the gameover.mp3 in a loop
+                    pygame.mixer.music.load("sfx/gameover.mp3")  # Load the gameover audio
+                    pygame.mixer.music.play()  
+
 
     def check_player_border_collision(self):
         """Prevent the player from going outside the border area defined by the border.jpg."""
