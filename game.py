@@ -28,6 +28,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.score = 0
+        self.highscore = self.load_highscore()
 
 
         # Cursor
@@ -163,7 +164,7 @@ class Game:
             direction = pygame.Vector2(rel_x, rel_y).normalize()
 
             # Create the arrow object
-            Arrow(self.player.rect.center, direction, 10, self.all_sprites)
+            Arrow(self.player.rect.center, direction, 15, self.all_sprites)
 
             if self.last_shot_sound == 1:
                 self.bow1sfx.play()
@@ -282,12 +283,12 @@ class Game:
 
         if self.is_paused:
             off_sound_image = pygame.image.load(r"assets/off_sound.png").convert_alpha()
-            off_sound_button_width, off_sound_button_height = 110, 110  # Slightly bigger (110x110)
+            off_sound_button_width, off_sound_button_height = 100, 100  # Slightly bigger (110x110)
             off_sound_image = pygame.transform.scale(off_sound_image, (off_sound_button_width, off_sound_button_height))
 
             # Position the button a little to the left
-            off_sound_button_x = (screen_width - off_sound_button_width) // 2 - 50  # Moved 50 pixels to the left
-            off_sound_button_y = screen_height // 2 - 200  # Place it near the top of the screen
+            off_sound_button_x = (screen_width - off_sound_button_width) // 2 - 40  # Moved 40 pixels to the left
+            off_sound_button_y = screen_height // 2 - 195  # Place it near the top of the screen
             off_sound_button_rect = pygame.Rect(off_sound_button_x, off_sound_button_y, off_sound_button_width, off_sound_button_height)
 
             self.screen.blit(off_sound_image, off_sound_button_rect)
@@ -377,6 +378,9 @@ class Game:
         restart_button_rect = pygame.Rect(restart_x, restart_y, restart_width, restart_height)
         if restart_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
             self.reset_game()
+        
+        self.display_score()
+        self.display_highscore()
 
     def go_to_home_screen(self):
         """Reset the game state and display the home screen."""
@@ -564,6 +568,7 @@ class Game:
             self.player.draw_health_bar(self.screen)
 
             self.display_score()
+            self.display_highscore()
             
         self.screen.blit(self.cursor, pygame.mouse.get_pos())
 
@@ -744,16 +749,43 @@ class Game:
         # After the delay, switch to the game state
         self.game_state = "game"
 
+    def load_highscore(self):
+        """Load the highscore from a text file."""
+        highscore_file = "highscore.txt"
+        if os.path.exists(highscore_file):
+            with open(highscore_file, "r") as file:
+                try:
+                    return int(file.read().strip())
+                except ValueError:
+                    return 0  # Default to 0 if the file is corrupted
+        else:
+            return 0  # Default to 0 if the file doesn't exist
+
+    def save_highscore(self):
+        """Save the highscore to a text file."""
+        with open("highscore.txt", "w") as file:
+            file.write(str(self.highscore))
+
     def update_score(self, score):
-        """Update the game score."""
+        """Update the game score and highscore simultaneously."""
         self.score += score
+        if self.score >= self.highscore:
+            self.highscore = self.score
+            self.save_highscore()  # Save highscore immediately
 
     def display_score(self):
         """Display the current score on the screen."""
-        font = pygame.font.Font(None, 36)
-        score_surface = font.render(f"Score: {self.score}", True, (255, 0, 0))
-        self.screen.blit(score_surface, (10, 10))
+        font = pygame.font.Font("font/BLOCKSTE.TTF", 46)
+        score_surface = font.render(f"Score: {self.score}", True, (0, 100, 0))  # Green color
+        score_x = self.screen.get_width() - score_surface.get_width() - 10
+        self.screen.blit(score_surface, (score_x, 10))
 
+    def display_highscore(self):
+        """Display the highscore on the screen."""
+        font = pygame.font.Font("font/BLOCKSTE.TTF", 46)
+        highscore_surface = font.render(f"Highscore: {self.highscore}", True, (0, 100, 0))  # Green color
+        highscore_x = self.screen.get_width() - highscore_surface.get_width() - 10
+        self.screen.blit(highscore_surface, (highscore_x, 50))
 
 # Button class with image support
 class Button:
