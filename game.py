@@ -78,18 +78,18 @@ class Game:
         self.shoot_time = 0
         self.bow_cooldown = 300  # Cooldown in milliseconds
 
-
         # Enemy spawn timer
         self.enemy_spawn_time = 0
         self.last_spawn_time = pygame.time.get_ticks()
         self.spawn_counter = 0
-
 
         self.pause_button = None  # To store the pause button
         self.is_paused = False    # Game pause state
         self.pause_bg = pygame.image.load(r"assets/pause_bg.png").convert_alpha()  # Load pause background
         self.pause_bg = pygame.transform.scale(self.pause_bg, (self.game_width, self.game_height))  # Scale it
 
+        self.gameover_bg = pygame.image.load(r"assets/game_over_bg.png").convert_alpha()  # Load pause background
+        self.gameover_bg = pygame.transform.scale(self.gameover_bg, (self.game_width, self.game_height))  # Scale it
 
         self.quit_button_image = pygame.image.load(r"assets/quit_button.png").convert_alpha()
        
@@ -280,6 +280,43 @@ class Game:
         if restart_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
             self.reset_game()
 
+        if self.is_paused:
+            off_sound_image = pygame.image.load(r"assets/off_sound.png").convert_alpha()
+            off_sound_button_width, off_sound_button_height = 110, 110  # Slightly bigger (110x110)
+            off_sound_image = pygame.transform.scale(off_sound_image, (off_sound_button_width, off_sound_button_height))
+
+            # Position the button a little to the left
+            off_sound_button_x = (screen_width - off_sound_button_width) // 2 - 50  # Moved 50 pixels to the left
+            off_sound_button_y = screen_height // 2 - 200  # Place it near the top of the screen
+            off_sound_button_rect = pygame.Rect(off_sound_button_x, off_sound_button_y, off_sound_button_width, off_sound_button_height)
+
+            self.screen.blit(off_sound_image, off_sound_button_rect)
+
+            # Check if the off_sound button is clicked
+            if off_sound_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
+                # Mute the music by stopping the battle_ost.ogg
+                pygame.mixer.music.pause()
+
+            # Show the on_sound.png image as a bigger button when pause button is clicked
+            on_sound_image = pygame.image.load(r"assets/on_sound.png").convert_alpha()
+            on_sound_button_width, on_sound_button_height = 110, 110  # Same size as off_sound
+            on_sound_image = pygame.transform.scale(on_sound_image, (on_sound_button_width, on_sound_button_height))
+
+
+            # Position the button a little to the right
+            on_sound_button_x = (screen_width - on_sound_button_width) // 2 + 50  # Moved 50 pixels to the right
+            on_sound_button_y = screen_height // 2 - 200  # Same vertical position as off_sound
+            on_sound_button_rect = pygame.Rect(on_sound_button_x, on_sound_button_y, on_sound_button_width, on_sound_button_height)
+
+
+            self.screen.blit(on_sound_image, on_sound_button_rect)
+
+
+            # Check if the on_sound button is clicked
+            if on_sound_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
+                # Unmute the music by unpausing the battle_ost.ogg
+                pygame.mixer.music.unpause()
+
     def reset_game(self):
         pygame.mixer.music.stop()
         pygame.mixer.music.load(r"sfx/battle_ost.ogg")  # Load the battle OST
@@ -295,6 +332,51 @@ class Game:
         self.player = Player((self.screen_width / 2, self.screen_height / 2), self.all_sprites)
         self.all_sprites.add(self.player)
         self.setup()
+
+    def draw_game_over_screen(self):
+        pygame.mouse.set_visible(True)  # Show the cursor
+
+        # Fill the screen with the game over background
+        scaled_background = pygame.transform.scale(self.gameover_bg, (self.screen_width, self.screen_height))
+
+        # Draw the map image
+        scaled_map = pygame.transform.scale(self.map_image, (self.game_width, self.screen_height))
+        map_x = (self.screen_width - self.game_width) // 2  # Center horizontally
+        map_y = 0  # Align the map to the top
+        self.screen.blit(scaled_map, (map_x, map_y))
+
+        # Draw a smaller game-over image centered over the map
+        scaled_width = int(self.screen_width * 0.4)  # 60% of the screen width
+        scaled_height = int(self.screen_height * 0.7)  # 60% of the screen height
+        scaled_gameover_image = pygame.transform.scale(self.gameover_bg, (scaled_width, scaled_height))
+        overlay_x = (self.screen_width - scaled_width) // 2
+        overlay_y = (self.screen_height - scaled_height) // 2 - 90
+        self.screen.blit(scaled_gameover_image, (overlay_x, overlay_y))
+
+        # Load and display the over_exit.png image on the left side of the screen
+        over_exit_image = pygame.image.load("assets/over_exit.png").convert_alpha()  # Load the over_exit image
+        exit_width, exit_height = over_exit_image.get_size()  # Get the size of the exit image
+       
+        # Position it on the left side of the screen with a small offset (10 pixels from the left)
+        exit_x = 850  # Position the image close to the left edge
+        exit_y = self.screen_height - exit_height - 170  # Position it near the bottom, adjust as necessary
+        self.screen.blit(over_exit_image, (exit_x, exit_y))
+        exit_button_rect = pygame.Rect(exit_x, exit_y, exit_width, exit_height)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if exit_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
+            pygame.quit()
+            quit()
+
+        over_restart_image = pygame.image.load("assets/over_restart.png").convert_alpha()  # Load the over_exit image
+        restart_width, restart_height = over_restart_image.get_size()  # Get the size of the exit image
+       
+        # Position it on the left side of the screen with a small offset (10 pixels from the left)
+        restart_x = 550  # Position the image close to the left edge
+        restart_y = self.screen_height - restart_height - 170  # Position it near the bottom, adjust as necessary
+        self.screen.blit(over_restart_image, (restart_x, restart_y))
+        restart_button_rect = pygame.Rect(restart_x, restart_y, restart_width, restart_height)
+        if restart_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
+            self.reset_game()
 
     def go_to_home_screen(self):
         """Reset the game state and display the home screen."""
@@ -369,6 +451,17 @@ class Game:
         # Scale the image to the new dimensions
         self.pause_button = Button(pause_x, pause_y, "assets/pause_button.png", button_width, button_height)
 
+    def handle_gameover_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:  # Restart the game
+                    self.reset_game()
+                elif event.key == pygame.K_q:  # Quit the game
+                    pygame.quit()
+                    sys.exit()
 
     def update(self):
         """Update game objects."""
@@ -394,7 +487,8 @@ class Game:
                 self.player.take_damage(1)
                 mob.kill()
                 if self.player.health <= 0:
-                    self.is_paused = True           # Game Over Interface
+                    self.is_gameover = True        # Game Over Interface
+                    self.game_state = "gameover"
 
     def check_player_border_collision(self):
         """Prevent the player from going outside the border area defined by the border.jpg."""
@@ -588,35 +682,39 @@ class Game:
         # Load the home screen music
         pygame.mixer.music.load(r"sfx/homescreenogg.mp3")
         pygame.mixer.music.play(-1, 0.0)  # Play the music looped indefinitely (-1)"""Main game loop."""
+  
         while self.running:
-            self.handle_events()
-            if self.game_state == "menu":
-                if self.play_button.is_hovered() and pygame.mouse.get_pressed()[0]:
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.load(r"sfx/battle_ost.ogg")  # Load the battle OST
-                    pygame.mixer.music.play(-1, 0.0)
-                    self.game_started = True
-                    self.start_time = pygame.time.get_ticks()            
-                    self.game_state = "game"
-                    self.center_player()
-                    self.handle_pause_button_position()
+            if self.game_state == "gameover":
+                self.handle_gameover_events()
+                self.draw_game_over_screen()
+            else:
+                self.handle_events()
+                if self.game_state == "menu":
+                    if self.play_button.is_hovered() and pygame.mouse.get_pressed()[0]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load(r"sfx/battle_ost.ogg")  # Load the battle OST
+                        pygame.mixer.music.play(-1, 0.0)
+                        self.game_started = True
+                        self.start_time = pygame.time.get_ticks()            
+                        self.game_state = "game"
+                        self.center_player()
+                        self.handle_pause_button_position()
 
-                if self.quit_button.is_hovered() and pygame.mouse.get_pressed()[0]:
-                    sys.exit()
-                    pygame.quit()
+                    if self.quit_button.is_hovered() and pygame.mouse.get_pressed()[0]:
+                        sys.exit()
+                        pygame.quit()
 
-            elif self.game_state == "game":
-                if self.show_intro_text:
-                    self.display_endless_apocalypse()
-                    self.show_intro_text = False  # Set this to False after showing the text
+                elif self.game_state == "game":
+                    if self.show_intro_text:
+                        self.display_endless_apocalypse()
+                        self.show_intro_text = False  # Set this to False after showing the text
+                    if not self.is_paused:
+                        self.update()
+                    else:
+                        self.draw_pause_screen()  # Draw pause background when paused
+
                 if not self.is_paused:
-                    self.update()
-                else:
-                    self.draw_pause_screen()  # Draw pause background when paused
-
-
-            if not self.is_paused:
-                self.draw()  # Draw game objects when not paused
+                    self.draw()  # Draw game objects when not paused
            
             self.all_sprites.update()
             pygame.display.update()
