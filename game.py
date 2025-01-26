@@ -6,108 +6,59 @@ from player import Player
 from sprites import *
 from mobs import *
 
-
 class Game:
     def __init__(self):
         pygame.init()
         os.environ['SDL_VIDEO_CENTERED'] = '1'  # This centers the window if it's windowed
-
-
-        # Adjust the screen size to a smaller windowed mode
         self.game_width = 800  # Smaller width for windowed mode
         self.game_height = 600  # Smaller height for windowed mode
         self.fullscreen = False  # Set fullscreen to False initially
-
-
-        # Initialize screen in windowed mode with the smaller size
         self.screen = pygame.display.set_mode((self.game_width, self.game_height), pygame.RESIZABLE)
-
-
         pygame.display.set_caption("Cropocalypse")
         pygame.display.set_icon(pygame.image.load(r"assets/icon.jpg"))
         self.clock = pygame.time.Clock()
         self.running = True
         self.score = 0
         self.highscore = self.load_highscore()
-
-
-        # Cursor
         self.cursor = pygame.image.load(r"assets/cursor.png").convert_alpha()
         pygame.mouse.set_visible(False)
-
-
-        # Load images
         self.load_images()
-
-
-        # Groups to hold sprites
         self.all_sprites = pygame.sprite.Group()
         self.arrow_sprites = pygame.sprite.Group()
         self.mob_sprites = pygame.sprite.Group()
-
-
-        # Play button (centered dynamically based on the screen mode)
         self.update_play_button_position()
-
-
-        # Game State
         self.game_state = "menu"  # Can be "menu" or "game"
-
-
-        # Sprites
         self.screen_width, self.screen_height = pygame.display.get_surface().get_size()
-
-
-        # Load and scale the map image
         self.map_image = pygame.image.load(r"assets/mapril.png").convert_alpha()
         self.map_image = pygame.transform.scale(self.map_image, (self.game_width, self.screen_height))
         self.map_width, self.map_height = self.map_image.get_size()
-
-
-        # Center of the map
         self.map_center_x = self.map_width // 2
         self.map_center_y = self.map_height // 2
-
-
-        # Initialize player at the center of the map
         self.player = Player((self.screen_width / 2, self.screen_height / 2), self.all_sprites)
         self.center_player()  # Center the player on the screen
-
-
-        # Reload Arrow
         self.can_shoot = True
         self.shoot_time = 0
         self.bow_cooldown = 300  # Cooldown in milliseconds
-
-        # Enemy spawn timer
         self.enemy_spawn_time = 0
         self.last_spawn_time = pygame.time.get_ticks()
         self.spawn_counter = 0
-
         self.pause_button = None  # To store the pause button
         self.is_paused = False    # Game pause state
         self.pause_bg = pygame.image.load(r"assets/pause_bg.png").convert_alpha()  # Load pause background
         self.pause_bg = pygame.transform.scale(self.pause_bg, (self.game_width, self.game_height))  # Scale it
-
         self.gameover_bg = pygame.image.load(r"assets/game_over_bg.png").convert_alpha()  # Load pause background
         self.gameover_bg = pygame.transform.scale(self.gameover_bg, (self.game_width, self.game_height))  # Scale it
-
-        self.quit_button_image = pygame.image.load(r"assets/quit_button.png").convert_alpha()
-       
+        self.quit_button_image = pygame.image.load(r"assets/quit_button.png").convert_alpha()   
         # Delay
         self.game_started = False
         self.start_time = None
         self.spawn_delay = 5000
-        # Set up initial game objects
-
 
         # Inside __init__ method
         self.show_endless_text = False  # To control the "ENDLESS APOCALYPSE" text display
         self.text_display_time = 0  # To track the time for displaying the text
 
-
         self.show_intro_text = True
-
         # Load the game music
         self.bow1sfx = pygame.mixer.Sound(r"sfx/arrow_sfx1.ogg")
         self.bow2sfx = pygame.mixer.Sound(r"sfx/arrow_sfx2.ogg")
@@ -115,16 +66,13 @@ class Game:
 
         self.setup()
 
-
     def setup(self):
         self.bow = Bow(self.player, self.all_sprites)
-
        
     def center_player(self):
         """Reposition the player in the center of the screen."""
         self.screen_width, self.screen_height = pygame.display.get_surface().get_size()
         self.player.rect.center = (self.screen_width / 2, self.screen_height / 2)
-
 
     def load_images(self):
         """Load all the images for the game."""
@@ -137,23 +85,19 @@ class Game:
         self.resume_button_image = pygame.image.load(r"assets/resume_button.png").convert_alpha()  # Load resume button
         self.restart_button_image = pygame.image.load(r"assets/restart_button.png").convert_alpha()  # Load restart button
 
-
     def spawn_chars(self):
         """Spawn the chars.png sprite in the middle of the mapril.png."""
         # Calculate the center position of mapril.png
         map_center_x = self.center_x + self.game_width // 2
         map_center_y = self.center_y + self.screen_height // 2
 
-
         # Create the sprite
         chars_sprite = pygame.sprite.Sprite()
         chars_sprite.image = pygame.transform.scale(self.chars_image, (50, 50))  # Resize if necessary
         chars_sprite.rect = chars_sprite.image.get_rect(center=(map_center_x, map_center_y))
 
-
         # Add to sprite group
         self.all_sprites.add(chars_sprite)
-
 
     def input(self):
         """Handle shooting of arrows."""
@@ -177,7 +121,6 @@ class Game:
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
 
-
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -187,7 +130,6 @@ class Game:
                     self.toggle_fullscreen()
             if self.pause_button and self.pause_button.is_hovered() and pygame.mouse.get_pressed()[0]:
                 self.is_paused = not self.is_paused  # Toggle pause state
-
 
             # Handle quit button click while paused
             if self.is_paused:
@@ -243,18 +185,15 @@ class Game:
         quit_button_y = screen_height // 2 + 50  # Place it below the pause background
         quit_button_rect = pygame.Rect(quit_button_x, quit_button_y, quit_button_width, quit_button_height)
 
-
         # Load and draw the quit button image
         quit_button_image = pygame.image.load(r"assets/quit_button.png").convert_alpha()
         quit_button_image = pygame.transform.scale(quit_button_image, (quit_button_width, quit_button_height))
         self.screen.blit(quit_button_image, quit_button_rect)
 
-
         # Check if the quit button is clicked
         if quit_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
             game = Game()
             game.run()
-
 
         # Draw the resume button when the game is paused
         resume_button_width, resume_button_height = 300, 150  # Increased width to 500
@@ -262,10 +201,8 @@ class Game:
         resume_button_y = screen_height // 2 - 100  # Moved it slightly lower (adjusted from -200 to -150)
         resume_button_rect = pygame.Rect(resume_button_x, resume_button_y, resume_button_width, resume_button_height)
 
-
         # Draw the resume button image
         self.screen.blit(self.resume_button_image, resume_button_rect)
-
 
         # Check if the resume button is clicked
         if resume_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
@@ -303,15 +240,12 @@ class Game:
             on_sound_button_width, on_sound_button_height = 110, 110  # Same size as off_sound
             on_sound_image = pygame.transform.scale(on_sound_image, (on_sound_button_width, on_sound_button_height))
 
-
             # Position the button a little to the right
             on_sound_button_x = (screen_width - on_sound_button_width) // 2 + 50  # Moved 50 pixels to the right
             on_sound_button_y = screen_height // 2 - 200  # Same vertical position as off_sound
             on_sound_button_rect = pygame.Rect(on_sound_button_x, on_sound_button_y, on_sound_button_width, on_sound_button_height)
 
-
             self.screen.blit(on_sound_image, on_sound_button_rect)
-
 
             # Check if the on_sound button is clicked
             if on_sound_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
@@ -376,6 +310,7 @@ class Game:
         restart_y = self.screen_height - restart_height - 170  # Position it near the bottom, adjust as necessary
         self.screen.blit(over_restart_image, (restart_x, restart_y))
         restart_button_rect = pygame.Rect(restart_x, restart_y, restart_width, restart_height)
+
         if restart_button_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
             self.reset_game()
         
@@ -388,7 +323,6 @@ class Game:
         # Add any other reset logic here, like resetting game variables, scores, etc.
         self.show_home_screen()  # Call a method that shows the home screen  
 
-
     def show_home_screen(self):
         """Display the home screen."""
         # Here, you can implement the logic to display your home screen (e.g., buttons, titles, etc.)
@@ -399,7 +333,6 @@ class Game:
         self.screen.blit(home_screen_text, (self.screen_width // 2 - home_screen_text.get_width() // 2, self.screen_height // 2))
        
         pygame.display.flip()  # Update the screen  
-
 
     def toggle_fullscreen(self):
         """Toggle between windowed and fullscreen mode."""
@@ -421,7 +354,6 @@ class Game:
         # Update the play button position based on the new screen size
         self.update_play_button_position()
 
-
     def update_play_button_position(self):
         """Update the play button position based on the screen size."""
         if self.fullscreen:
@@ -435,7 +367,6 @@ class Game:
         self.play_button = Button(self.button_x, self.button_y, "assets/play_button.png")
         self.quit_button = Button(self.button_x, self.button_y, "assets/quit_button.png")
 
-
     def bow_timer(self):
             """Handles the cooldown timer for shooting arrows."""
             if not self.can_shoot:
@@ -443,14 +374,12 @@ class Game:
                 if now - self.shoot_time >= self.bow_cooldown:
                     self.can_shoot = True
 
-
     def handle_pause_button_position(self):
         """Update the pause button position dynamically."""
         pause_x = self.screen_width - 1160  # Move it to the right side of the screen
         pause_y = 7  # Keep it near the top
         button_width = 75  # New width for the button
         button_height = 75  # New height for the button
-
 
         # Scale the image to the new dimensions
         self.pause_button = Button(pause_x, pause_y, "assets/pause_button.png", button_width, button_height)
@@ -483,7 +412,6 @@ class Game:
 
             self.player_mob_collision()
 
-    
     def player_mob_collision(self):
         """Check for collisions between the player and mobs."""
         for mob in self.mob_sprites:
@@ -496,7 +424,6 @@ class Game:
                     # Play the gameover.mp3 in a loop
                     pygame.mixer.music.load("sfx/gameover.mp3")  # Load the gameover audio
                     pygame.mixer.music.play()  
-
 
     def check_player_border_collision(self):
         """Prevent the player from going outside the border area defined by the border.jpg."""
@@ -515,7 +442,6 @@ class Game:
         # Get the player's current position and size
         player_rect = self.player.rect
 
-
         # Prevent player from going outside the border
         if player_rect.left < border_x:
             player_rect.left = border_x
@@ -526,7 +452,6 @@ class Game:
         if player_rect.bottom > border_y + border_height:
             player_rect.bottom = border_y + border_height
 
-
     def check_mob_border_collision(self):
         """Prevent mobs from going outside the map borders."""
         # Get the map's boundaries based on the scaled map
@@ -534,7 +459,6 @@ class Game:
         map_y = 0  # The map starts at the top edge
         map_width = self.game_width  # Map width stays the same as the game width
         map_height = self.screen_height  # Map height is the full screen height
-
 
         # Check for border collision with the mobs
         for mob in self.mob_sprites:
@@ -547,16 +471,13 @@ class Game:
             if mob.rect.bottom > map_y + map_height:
                 mob.rect.bottom = map_y + map_height
 
-
     def draw(self):
         """Draw all game objects on the screen."""
         self.fill_excess_area()
 
-
         if self.game_state == "menu":
             self.play_button.draw(self.screen)
             self.quit_button.draw(self.screen)
-
 
         elif self.game_state == "game":
             self.all_sprites.draw(self.screen)
@@ -582,22 +503,18 @@ class Game:
         self.center_x = (self.screen_width - self.game_width) // 2
         self.center_y = (self.screen_height - self.game_height) // 2
 
-
         # Fill the entire screen with the appropriate background image
         if self.game_state == "menu":
             scaled_background = pygame.transform.scale(self.background_image, (self.screen_width, self.screen_height))
         else:
             scaled_background = pygame.transform.scale(self.game_background_image, (self.screen_width, self.screen_height))
 
-
         self.screen.blit(scaled_background, (0, 0))
-
 
         # Only draw the map if the game state is "game"
         if self.game_state == "game":
             # Scale the original map to fit the game width and stretch its height
             scaled_map = pygame.transform.scale(self.map_image, (self.game_width, self.screen_height))
-
 
             # Calculate position to center the masp horizontally
             map_x = (self.screen_width - self.game_width) // 2  # Center horizontally
