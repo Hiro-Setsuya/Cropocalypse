@@ -90,7 +90,7 @@ class Mob_right(pygame.sprite.Sprite):
                 self.image = pygame.transform.scale(self.original_image, self.rect.size)
 
         # Adjust the mob position
-        self.rect.centerx += direction.x * self.speed  # Example speed
+        self.rect.centerx += direction.x * self.speed 
         self.rect.centery += direction.y * self.speed
     
     def take_damage(self):
