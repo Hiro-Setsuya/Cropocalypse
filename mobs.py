@@ -1,15 +1,18 @@
 import pygame
 import math
 import random
+from game import *
 
 
 class Mob(pygame.sprite.Sprite):
-    def __init__(self, pos, player, groups, scale=(32, 32)):
+    def __init__(self, pos, player, game, groups,score = 100, scale=(32, 32)):
         super().__init__(groups)
         self.player = player
+        self.game = game
         self.health = 1
         self.max_health = 1
         self.speed = 1
+        self.score = score
 
         # Randomly choose an image from mob_1 to mob_3
         mob_image = f"assets/mob_{random.randint(1,3)}.png"
@@ -36,6 +39,7 @@ class Mob(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
+        self.game.update_score(self.score)
         self.kill()
 
     def draw_health_bar(self, screen):
@@ -52,12 +56,14 @@ class Mob(pygame.sprite.Sprite):
         pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(health_bar_rect.x, health_bar_rect.y, health_bar_width * health_percentage, health_bar_height))
 
 class Mob_right(pygame.sprite.Sprite):
-    def __init__(self, pos, player, groups, scale=(32, 32)):
+    def __init__(self, pos, player, game, groups,score = 200, scale=(32, 32)):
         super().__init__(groups)
         self.player = player
+        self.game = game
         self.health = 2
         self.max_health = 2
         self.speed = 1
+        self.score = score
 
         # Randomly choose an image from mobr_1 to mobr_3
         mobr_image = f"assets/mobr_{random.randint(1,4)}.png"
@@ -93,6 +99,7 @@ class Mob_right(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
+        self.game.update_score(self.score)
         self.kill()
 
     def draw_health_bar(self, screen):
@@ -109,12 +116,14 @@ class Mob_right(pygame.sprite.Sprite):
         pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(health_bar_rect.x, health_bar_rect.y, health_bar_width * health_percentage, health_bar_height))
 
 class Boss(pygame.sprite.Sprite):
-    def __init__(self, pos, player, groups, scale=(64, 64)):
+    def __init__(self, pos, player, game, groups, score = 500, scale=(64, 64)):
         super().__init__(groups)
         self.player = player
+        self.game = game
         self.health = 5
         self.max_health = 5
         self.speed = 1
+        self.score = score
 
         # Load boss images
         self.images = {
@@ -182,6 +191,7 @@ class Boss(pygame.sprite.Sprite):
             self.destroy()
 
     def destroy(self):
+        self.game.update_score(self.score)
         self.kill()
 
     def draw_health_bar(self, screen):
