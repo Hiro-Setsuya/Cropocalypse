@@ -191,11 +191,7 @@ class Game:
                     for mob in self.mob_sprites:
                         if mob.rect.collidepoint(mouse_x, mouse_y):
                             mob.take_damage()
-
-                        for arrow in self.arrow_sprites:
-                            if arrow.rect.collidepoint(mouse_x, mouse_y) and arrow.alive():
-                                arrow.kill()
-                                break
+                            break
                     
     def draw_pause_screen(self):
         """Draw a pause background image and show the cursor when hovered over it."""
@@ -350,10 +346,20 @@ class Game:
             # Border collision for the player
             self.check_player_border_collision()
 
-
             # Border collision for mobs
             self.check_mob_border_collision()
 
+            self.player_mob_collision()
+
+    
+    def player_mob_collision(self):
+        """Check for collisions between the player and mobs."""
+        for mob in self.mob_sprites:
+            if pygame.sprite.collide_rect(self.player, mob):
+                self.player.take_damage(1)
+                mob.kill()
+                if self.player.health <= 0:
+                    self.is_paused = True           # Game Over Interface
 
     def check_player_border_collision(self):
         """Prevent the player from going outside the border area defined by the border.jpg."""
@@ -423,7 +429,11 @@ class Game:
             for mob in self.mob_sprites:
                 mob.update()  # Update the mob logic
                 mob.draw_health_bar(self.screen)  # Draw the health bar
-
+            
+         # Draw the player's health bar
+            self.player.update()
+            self.player.draw_health_bar(self.screen)
+            
 
         self.screen.blit(self.cursor, pygame.mouse.get_pos())
 
@@ -507,9 +517,6 @@ class Game:
         map_y = 0  # Align the map to the top edge
         map_width = self.game_width  # Map width matches the game width
         map_height = self.screen_height  # Map height matches the screen height
-
-
-
 
         # Determine spawn positions based on the selected edge
         if edge == 'middle_left':
