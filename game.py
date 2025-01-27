@@ -77,7 +77,7 @@ class Game:
     def load_images(self):
         """Load all the images for the game."""
         self.arrow_surf = pygame.image.load(r"assets/arrow.png").convert_alpha()
-        self.background_image = pygame.image.load(r"assets/new homescreen.jpg").convert_alpha()  # Menu background
+        self.background_image = pygame.image.load(r"assets/new_homescreen.jpg").convert_alpha()  # Menu background
         self.game_background_image = pygame.image.load(r"assets/bg_image.png").convert_alpha()  # Game background
         self.map_image = pygame.image.load(r"assets/mapril.png").convert_alpha()  # Original map
         self.border_map_image = pygame.image.load(r"assets/border.jpg").convert_alpha()  # New border map image
