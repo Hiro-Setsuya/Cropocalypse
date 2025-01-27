@@ -6,12 +6,12 @@ class Player(pygame.sprite.Sprite):
         self.original_image = pygame.image.load(r"assets/player.png").convert_alpha()
         self.image = pygame.transform.scale(self.original_image, scale)  # Scale the image
         self.rect = self.image.get_rect(center=pos)
-        self.health = 3
-        self.max_health = 3
+        self.health = 5
+        self.max_health = 5
     
         # Movement
         self.direction = pygame.Vector2()
-        self.speed = 2
+        self.speed = 1.5
         self.facing_right = True  # Track the facing direction
 
     def input(self):
