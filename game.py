@@ -77,7 +77,7 @@ class Game:
     def load_images(self):
         """Load all the images for the game."""
         self.arrow_surf = pygame.image.load(r"assets/arrow.png").convert_alpha()
-        self.background_image = pygame.image.load(r"assets/cover_2.jpg").convert_alpha()  # Menu background
+        self.background_image = pygame.image.load(r"assets/new homescreen.jpg").convert_alpha()  # Menu background
         self.game_background_image = pygame.image.load(r"assets/bg_image.png").convert_alpha()  # Game background
         self.map_image = pygame.image.load(r"assets/mapril.png").convert_alpha()  # Original map
         self.border_map_image = pygame.image.load(r"assets/border.jpg").convert_alpha()  # New border map image
@@ -537,28 +537,57 @@ class Game:
 
        
     def spawn_enemies(self):
+        """Spawn enemies dynamically, with spawn speed increasing over time."""
         if not self.game_started:
             return
-       
+
         now = pygame.time.get_ticks()
-        if now - self.start_time < self.spawn_delay:
-            return
-       
-        spawn_locations = ['middle_left', 'middle_right', 'middle_bottom']
-        self.spawn_counter = self.spawn_counter % len(spawn_locations)
+        elapsed_time = now - self.start_time  # Time elapsed since the game started
 
+        # Reduce spawn delay as time progresses
+        self.enemy_spawn_time = max(500, 3000 - (elapsed_time // 10000) * 500)
+        # Minimum spawn time is capped at 500ms
 
-        # Check if it's time to spawn AN enemy (regardless of location)
         if now - self.last_spawn_time >= self.enemy_spawn_time:
+            spawn_locations = ['middle_left', 'middle_right', 'middle_bottom']
+            self.spawn_counter = self.spawn_counter % len(spawn_locations)
+
+            # Randomize enemy type and spawn location
             spawn_edge = spawn_locations[self.spawn_counter]
-            self.enemy_spawn_time = random.randint(1000, 3000) #Still random interval
             mob_type = random.choice([Mob, Mob_right, Boss])
             spawn_x, spawn_y = self.get_spawn_position(spawn_edge)
+
+            # Spawn the mob
             enemy = mob_type((spawn_x, spawn_y), self.player, game, self.all_sprites)
             self.all_sprites.add(enemy)
             self.mob_sprites.add(enemy)
+
             self.last_spawn_time = now
             self.spawn_counter += 1
+
+    def get_spawn_position(self, edge):
+        """Get the spawn position for enemies based on specific edges of the map image."""
+        # Calculate the map's position and size
+        map_x = (self.screen_width - self.game_width) // 2  # Center the map horizontally
+        map_y = 0  # Align the map to the top edge
+        map_width = self.game_width  # Map width matches the game width
+        map_height = self.screen_height  # Map height matches the screen height
+
+        # Determine spawn positions based on the selected edge
+        if edge == 'middle_left':
+            spawn_x = map_x  # Left edge of the map
+            spawn_y = map_y + map_height // 2  # Vertical center of the map
+        elif edge == 'middle_right':
+            spawn_x = map_x + map_width  # Right edge of the map
+            spawn_y = map_y + map_height // 2  # Vertical center of the map
+        elif edge == 'middle_bottom':
+            spawn_x = map_x + map_width // 2  # Horizontal center of the map
+            spawn_y = map_y + map_height  # Bottom edge of the map
+        else:
+            raise ValueError("Invalid edge specified for mob spawning.")
+
+
+        return spawn_x, spawn_y 
 
     def get_spawn_position(self, edge):
         """Get the spawn position for enemies based on specific edges of the map image."""
