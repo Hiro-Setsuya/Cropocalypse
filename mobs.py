@@ -11,7 +11,7 @@ class Mob(pygame.sprite.Sprite):
         self.game = game
         self.health = 1
         self.max_health = 1
-        self.speed = 1
+        self.speed = 0.8
         self.score = score
 
         # Randomly choose an image from mob_1 to mob_3
@@ -44,28 +44,43 @@ class Mob(pygame.sprite.Sprite):
                 for i in range(1, 6)
             ]
 
-            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
+            # Define a scaling factor for the blood splash (e.g., 0.5 to make it half the size)
             scale_factor = 0.5
+
+            # Scale all frames upfront to avoid repeated calculations during the animation
+            scaled_frames = [
+                pygame.transform.scale(frame, (int(frame.get_width() * scale_factor), int(frame.get_height() * scale_factor)))
+                for frame in blood_frames
+            ]
+
+            # Position the splash animation centered on the mob's position
+            splash_rect = scaled_frames[0].get_rect(center=self.rect.center)
 
             # Function to animate the blood splash
             def play_blood_splash():
-                for frame in blood_frames:
-                    # Scale the frame by the scaling factor
-                    new_width = int(frame.get_width() * scale_factor)
-                    new_height = int(frame.get_height() * scale_factor)
-                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+                animation_start_time = pygame.time.get_ticks()
+                frame_duration = 50  # Duration of each frame in milliseconds
 
-                    # Position the splash frame centered on the mob's position
-                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+                for i, frame in enumerate(scaled_frames):
+                    current_time = pygame.time.get_ticks()
+                    elapsed_time = current_time - animation_start_time
 
-                    # Draw the scaled blood splash frame
-                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    if elapsed_time < i * frame_duration:
+                        pygame.time.delay(frame_duration - elapsed_time % frame_duration)
+
+                    # Clear the previous frame by redrawing the game state
+                    self.game.draw()
+
+                    # Draw the current blood splash frame
+                    self.game.screen.blit(frame, splash_rect.topleft)
+
+                    # Update the display to show the current frame
                     pygame.display.update()
 
             # Play the blood splash animation
             play_blood_splash()
 
-            # Update score
+            # Update the score
             self.game.update_score(self.score)
 
             # Kill the mob
@@ -91,7 +106,7 @@ class Mob_right(pygame.sprite.Sprite):
         self.game = game
         self.health = 2
         self.max_health = 2
-        self.speed = 1
+        self.speed = 0.9
         self.score = score
 
         # Randomly choose an image from mobr_1 to mobr_3
@@ -133,28 +148,43 @@ class Mob_right(pygame.sprite.Sprite):
                 for i in range(1, 6)
             ]
 
-            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
+            # Define a scaling factor for the blood splash (e.g., 0.5 to make it half the size)
             scale_factor = 0.5
+
+            # Scale all frames upfront to avoid repeated calculations during the animation
+            scaled_frames = [
+                pygame.transform.scale(frame, (int(frame.get_width() * scale_factor), int(frame.get_height() * scale_factor)))
+                for frame in blood_frames
+            ]
+
+            # Position the splash animation centered on the mob's position
+            splash_rect = scaled_frames[0].get_rect(center=self.rect.center)
 
             # Function to animate the blood splash
             def play_blood_splash():
-                for frame in blood_frames:
-                    # Scale the frame by the scaling factor
-                    new_width = int(frame.get_width() * scale_factor)
-                    new_height = int(frame.get_height() * scale_factor)
-                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+                animation_start_time = pygame.time.get_ticks()
+                frame_duration = 50  # Duration of each frame in milliseconds
 
-                    # Position the splash frame centered on the mob's position
-                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+                for i, frame in enumerate(scaled_frames):
+                    current_time = pygame.time.get_ticks()
+                    elapsed_time = current_time - animation_start_time
 
-                    # Draw the scaled blood splash frame
-                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    if elapsed_time < i * frame_duration:
+                        pygame.time.delay(frame_duration - elapsed_time % frame_duration)
+
+                    # Clear the previous frame by redrawing the game state
+                    self.game.draw()
+
+                    # Draw the current blood splash frame
+                    self.game.screen.blit(frame, splash_rect.topleft)
+
+                    # Update the display to show the current frame
                     pygame.display.update()
 
             # Play the blood splash animation
             play_blood_splash()
 
-            # Update score
+            # Update the score
             self.game.update_score(self.score)
 
             # Kill the mob
@@ -180,7 +210,7 @@ class Boss(pygame.sprite.Sprite):
         self.game = game
         self.health = 5
         self.max_health = 5
-        self.speed = 1
+        self.speed = 0.8
         self.score = score
 
         # Load boss images
@@ -195,7 +225,7 @@ class Boss(pygame.sprite.Sprite):
         # Set initial image and animation variables
         self.current_state = "walk"  # Default state is walking
         self.current_frame = 0
-        self.animation_speed = 100  # Milliseconds per frame
+        self.animation_speed = 80  # Milliseconds per frame
         self.last_update = pygame.time.get_ticks()
 
         # Set the initial image and scale
@@ -254,28 +284,43 @@ class Boss(pygame.sprite.Sprite):
                 for i in range(1, 6)
             ]
 
-            # Define a scaling factor for the blood splash (e.g., 1.5 to make it 1.5 times larger)
-            scale_factor = 1
+            # Define a scaling factor for the blood splash (e.g., 0.5 to make it half the size)
+            scale_factor = 0.5
+
+            # Scale all frames upfront to avoid repeated calculations during the animation
+            scaled_frames = [
+                pygame.transform.scale(frame, (int(frame.get_width() * scale_factor), int(frame.get_height() * scale_factor)))
+                for frame in blood_frames
+            ]
+
+            # Position the splash animation centered on the mob's position
+            splash_rect = scaled_frames[0].get_rect(center=self.rect.center)
 
             # Function to animate the blood splash
             def play_blood_splash():
-                for frame in blood_frames:
-                    # Scale the frame by the scaling factor
-                    new_width = int(frame.get_width() * scale_factor)
-                    new_height = int(frame.get_height() * scale_factor)
-                    scaled_frame = pygame.transform.scale(frame, (new_width, new_height))
+                animation_start_time = pygame.time.get_ticks()
+                frame_duration = 80  # Duration of each frame in milliseconds
 
-                    # Position the splash frame centered on the mob's position
-                    splash_rect = scaled_frame.get_rect(center=self.rect.center)
+                for i, frame in enumerate(scaled_frames):
+                    current_time = pygame.time.get_ticks()
+                    elapsed_time = current_time - animation_start_time
 
-                    # Draw the scaled blood splash frame
-                    self.game.screen.blit(scaled_frame, splash_rect.topleft)
+                    if elapsed_time < i * frame_duration:
+                        pygame.time.delay(frame_duration - elapsed_time % frame_duration)
+
+                    # Clear the previous frame by redrawing the game state
+                    self.game.draw()
+
+                    # Draw the current blood splash frame
+                    self.game.screen.blit(frame, splash_rect.topleft)
+
+                    # Update the display to show the current frame
                     pygame.display.update()
 
             # Play the blood splash animation
             play_blood_splash()
 
-            # Update score
+            # Update the score
             self.game.update_score(self.score)
 
             # Kill the mob
